@@ -1,0 +1,7 @@
+# Non-secret settings. Copy to config.toml (committed values here are examples).
+port = 8765
+github_org = "augusthealth"
+github_label = "ops"
+slack_support_channel = "C0123456789"   # channel ID, not name
+notion_database_url = "https://www.notion.so/..."
+nas_target = "user@nas:/volume1/backups/scc/"   # rsync destination; leave "" to skip
