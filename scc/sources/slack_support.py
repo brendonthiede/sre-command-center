@@ -30,7 +30,8 @@ def fetch() -> list[Item]:
     if not _team_url:
         _team_url = _call("auth.test")["url"].rstrip("/")
     ch = CFG["slack_support_channel"]
-    oldest = time.time() - MAX_AGE_HOURS * 3600
+    # int: Slack returns an empty list for `oldest` with >6 decimals, no error (seen 2026-09-10)
+    oldest = int(time.time() - MAX_AGE_HOURS * 3600)
     items: list[Item] = []
     cursor = None
     while True:
