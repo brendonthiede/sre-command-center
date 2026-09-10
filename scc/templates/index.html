@@ -1,0 +1,48 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>SRE Command Center</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 12px 16px; background: #f6f7f9; color: #1c1e21; max-width: 1200px; }
+  h2 { font-size: 16px; margin: 20px 0 6px; display: flex; gap: 10px; align-items: baseline; }
+  h2 small { font-weight: normal; color: #667; }
+  h2 form { display: inline; }
+  .item { background: #fff; border: 1px solid #dde; border-radius: 6px; margin: 4px 0; padding: 6px 10px; }
+  .row { display: flex; gap: 10px; align-items: baseline; cursor: pointer; }
+  .row a { color: #1a4fbf; text-decoration: none; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta { color: #667; font-size: 12px; white-space: nowrap; }
+  .badge { font-size: 11px; padding: 1px 6px; border-radius: 10px; background: #e8ebf0; }
+  .badge.new { background: #ffe6a8; } .badge.watching { background: #cfe8ff; } .badge.delegated { background: #e6d5ff; } .badge.ticketed { background: #d2f5d8; }
+  .note { color: #445; font-size: 12px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 30%; }
+  .edit { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #dde; }
+  .item.open .edit { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+  .edit textarea { flex: 1; min-width: 240px; height: 48px; }
+  .empty { color: #889; padding: 6px 10px; }
+  .fail { color: #b00; }
+</style>
+
+{% for sec in sections %}
+<h2 id="{{ sec.name }}">{{ sec.name }}
+  <small>{{ sec.rows|length }} ·
+    {% if sec.sync %}synced {{ sec.sync.ran_at|age }} ago{% if not sec.sync.ok %} <span class="fail" title="{{ sec.sync.message }}">FAILED</span>{% endif %}{% else %}never synced{% endif %}
+  </small>
+  <form method="post" action="/sync/{{ sec.name }}"><button>Sync now</button></form>
+</h2>
+{% for it in sec.rows %}
+<div class="item" id="{{ sec.name }}-{{ loop.index }}">
+  <div class="row" onclick="if(event.target.tagName!='A')this.parentNode.classList.toggle('open')">
+    <a href="{{ it.url }}" target="_blank">{{ it.title }}</a>
+    {% if sec.name == 'sentry' %}<span class="meta">{{ it.data.count }}× · {{ it.data.users }} users · {{ it.data.substatus }}</span>{% endif %}
+    {% if it.summary %}<span class="meta">{{ it.summary }}</span>{% endif %}
+    {% if it.note %}<span class="note">{{ it.note }}</span>{% endif %}
+    <span class="badge {{ it.status }}">{{ it.status }}</span>
+    <span class="meta" title="source updated {{ it.source_updated_at }}">{{ it.source_updated_at|age }}</span>
+  </div>
+  <form class="edit" method="post" action="/item/{{ sec.name }}/{{ it.external_id }}">
+    <select name="status">{% for s in statuses %}<option {% if s == it.status %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+    <textarea name="note" placeholder="note">{{ it.note }}</textarea>
+    <label>snooze until <input type="date" name="snoozed_until" value="{{ it.snoozed_until or '' }}"></label>
+    <button>Save</button>
+  </form>
+</div>
+{% else %}<div class="empty">nothing</div>{% endfor %}
+{% endfor %}
