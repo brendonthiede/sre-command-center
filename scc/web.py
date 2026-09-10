@@ -38,11 +38,12 @@ app.jinja_env.filters["age"] = _age
 @app.get("/")
 def index():
     syncs = db.last_syncs()
-    sections = [{
-        "name": s.NAME,
-        "rows": db.list_items(s.NAME, max_age_hours=s.MAX_AGE_HOURS),
-        "sync": syncs.get(s.NAME),
-    } for s in SOURCES]
+    sections = []
+    for s in SOURCES:
+        rows = db.list_items(s.NAME, max_age_hours=s.MAX_AGE_HOURS)
+        if s.NAME == "gcal":  # soonest first; everything else is newest first
+            rows.sort(key=lambda r: r["data"]["start"])
+        sections.append({"name": s.NAME, "rows": rows, "sync": syncs.get(s.NAME)})
     return render_template("index.html", sections=sections, statuses=db.STATUSES)
 
 

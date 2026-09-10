@@ -33,11 +33,12 @@ def _creds() -> Credentials:
 def fetch() -> list[Item]:
     svc = build("calendar", "v3", credentials=_creds(), cache_discovery=False)
     now = datetime.now(timezone.utc)
+    day_start = now.astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
     items: list[Item] = []
     for cal in svc.calendarList().list().execute().get("items", []):
         if not cal.get("selected", True):
             continue
-        events = svc.events().list(calendarId=cal["id"], timeMin=now.isoformat(),
+        events = svc.events().list(calendarId=cal["id"], timeMin=day_start.isoformat(),
                                    timeMax=(now + timedelta(hours=48)).isoformat(),
                                    singleEvents=True, orderBy="startTime", maxResults=50).execute()
         for ev in events.get("items", []):

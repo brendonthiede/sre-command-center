@@ -14,10 +14,11 @@ NAME = "notion"
 INTERVAL_SECONDS = 3600
 MAX_AGE_HOURS = 24 * 3
 
-PROMPT = """Query the Notion database at {url} for tasks assigned to me (the current user) that are not done or completed.
-Reply with ONLY a JSON array, no prose, no code fences, one object per task:
-[{{"id": "<page id>", "title": "...", "url": "<page url>", "due": "<YYYY-MM-DD or empty>", "status": "<status name>", "updated": "<ISO timestamp>"}}]
-If there are no tasks, reply with []."""
+PROMPT = """Query the Notion database at {url} and select {filter}. Page through all results.
+Use notion-fetch to get the data source, then notion-query-data-sources in sql mode; date properties are columns like "date:Due:start".
+Reply with ONLY a JSON array, no prose, no code fences, one object per row:
+[{{"id": "<page id>", "title": "...", "url": "<page url>", "due": "<YYYY-MM-DD or empty>", "status": "<status name>", "priority": "<priority or empty>", "updated": "<ISO timestamp>"}}]
+If there are no rows, reply with []."""
 
 TOOLS = ["mcp__claude_ai_Notion__notion-fetch", "mcp__claude_ai_Notion__notion-query-data-sources",
          "mcp__claude_ai_Notion__notion-search", "mcp__claude_ai_Notion__notion-ai-search",
@@ -26,7 +27,7 @@ TOOLS = ["mcp__claude_ai_Notion__notion-fetch", "mcp__claude_ai_Notion__notion-q
 
 def fetch() -> list[Item]:
     out = subprocess.run(
-        ["claude", "-p", PROMPT.format(url=CFG["notion_database_url"]),
+        ["claude", "-p", PROMPT.format(url=CFG["notion_database_url"], filter=CFG["notion_filter"]),
          "--model", "claude-haiku-4-5-20251001", "--output-format", "json",
          "--allowedTools", *TOOLS],
         check=True, capture_output=True, text=True, timeout=300, stdin=subprocess.DEVNULL,
@@ -39,7 +40,7 @@ def fetch() -> list[Item]:
         external_id=t["id"],
         title=t["title"][:200],
         url=t.get("url", ""),
-        summary=" · ".join(x for x in (t.get("status"), f"due {t['due']}" if t.get("due") else "") if x),
-        data={"due": t.get("due"), "notion_status": t.get("status")},
+        summary=" · ".join(x for x in (t.get("status"), t.get("priority"), f"due {t['due']}" if t.get("due") else "") if x),
+        data={"due": t.get("due"), "notion_status": t.get("status"), "priority": t.get("priority")},
         source_updated_at=t.get("updated") or "",
     ) for t in json.loads(m.group(0))]
