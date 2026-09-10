@@ -27,6 +27,12 @@
   </small>
   <form method="post" action="/sync/{{ sec.name }}"><button>Sync now</button></form>
 </h2>
+{% if sec.name == 'gcal' %}
+{% for it in sec.rows %}
+<div class="item"><div class="row"><span class="meta">{{ it.data.start[:16].replace('T', ' ') if not it.data.all_day else it.data.start + ' all day' }}</span>
+  <a href="{{ it.url }}" target="_blank">{{ it.title }}</a><span class="meta">{{ it.summary }}</span></div></div>
+{% else %}<div class="empty">nothing</div>{% endfor %}
+{% else %}
 {% for it in sec.rows %}
 <div class="item" id="{{ sec.name }}-{{ loop.index }}">
   <div class="row" onclick="if(event.target.tagName!='A')this.parentNode.classList.toggle('open')">
@@ -45,4 +51,5 @@
   </form>
 </div>
 {% else %}<div class="empty">nothing</div>{% endfor %}
+{% endif %}
 {% endfor %}

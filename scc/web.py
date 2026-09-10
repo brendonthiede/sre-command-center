@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from flask import Flask, redirect, render_template, request
 
 from scc import db
+from scc.backup import backup
 from scc.config import CFG
 from scc.sources import BY_NAME, SOURCES
 from scc.sync import sync_source
@@ -63,8 +64,14 @@ def sync_now(source):
 
 
 def _scheduler() -> None:
-    last: dict[str, float] = {}
+    last: dict[str, float] = {"backup": time.monotonic()}
     while True:
+        if time.monotonic() - last["backup"] >= 86400:
+            last["backup"] = time.monotonic()
+            try:
+                log.info(backup())
+            except Exception as e:
+                log.warning("backup failed: %s", e)
         for s in SOURCES:
             if time.monotonic() - last.get(s.NAME, -1e9) < s.INTERVAL_SECONDS:
                 continue
