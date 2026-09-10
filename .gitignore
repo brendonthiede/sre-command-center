@@ -6,3 +6,4 @@ credentials.json
 __pycache__/
 *.pyc
 .pytest_cache/
+slack-app/.slack/

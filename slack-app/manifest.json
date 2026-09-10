@@ -1,0 +1,16 @@
+{
+  "display_information": {
+    "name": "SRE Command Center",
+    "description": "Read-only poller for the support channel feeding a local dashboard"
+  },
+  "oauth_config": {
+    "scopes": {
+      "user": ["channels:history", "channels:read", "groups:history", "groups:read"]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}
