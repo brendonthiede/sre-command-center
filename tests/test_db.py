@@ -27,3 +27,10 @@ def test_note_survives_resync():
 if __name__ == "__main__":
     test_note_survives_resync()
     print("ok")
+
+
+def test_quiet_hours():
+    from scc.web import is_quiet
+    assert is_quiet(23, 19, 7) and is_quiet(3, 19, 7) and is_quiet(19, 19, 7)
+    assert not is_quiet(7, 19, 7) and not is_quiet(12, 19, 7)
+    assert is_quiet(13, 12, 14) and not is_quiet(14, 12, 14)

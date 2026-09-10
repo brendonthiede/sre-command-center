@@ -1,5 +1,6 @@
 # Non-secret settings. Copy to config.toml (committed values here are examples).
 port = 8765
+quiet_hours = [19, 7]   # no background syncs or backups from 19:00 to 07:00 local; omit to disable
 sentry_query = "is:unresolved environment:production level:[error,fatal] project:[august-health,august-health-backend]"
 github_org = "augusthealth"
 github_label = "ops"

@@ -64,9 +64,18 @@ def sync_now(source):
     return redirect(f"/#{source}")
 
 
+def is_quiet(hour: int, start: int, end: int) -> bool:
+    """True when `hour` falls in [start, end), wrapping past midnight when start > end."""
+    return hour >= start or hour < end if start > end else start <= hour < end
+
+
 def _scheduler() -> None:
     last: dict[str, float] = {"backup": time.monotonic()}
+    quiet = CFG.get("quiet_hours")
     while True:
+        if quiet and is_quiet(datetime.now().hour, *quiet):
+            time.sleep(300)
+            continue
         if time.monotonic() - last["backup"] >= 86400:
             last["backup"] = time.monotonic()
             try:
