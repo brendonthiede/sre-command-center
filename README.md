@@ -11,7 +11,7 @@ cp config.example.toml config.toml   # edit channel ID, Notion DB URL, NAS targe
 cp .env.example .env                 # add tokens (Sentry vars may already be in your shell)
 uv run scc serve                     # http://127.0.0.1:8765
 uv run scc sync <source>             # one source in the foreground, prints the count
-uv run scc backup                    # sqlite backup to data/, rsync to NAS if configured
+uv run scc backup                    # sqlite backup to data/, scp to NAS if configured
 ```
 
 State is `data/scc.db` (gitignored). Background syncs run on each source's own interval;

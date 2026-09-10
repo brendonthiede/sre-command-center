@@ -20,7 +20,8 @@ Reply with ONLY a JSON array, no prose, no code fences, one object per task:
 If there are no tasks, reply with []."""
 
 TOOLS = ["mcp__claude_ai_Notion__notion-fetch", "mcp__claude_ai_Notion__notion-query-data-sources",
-         "mcp__claude_ai_Notion__notion-search", "mcp__claude_ai_Notion__notion-get-users"]
+         "mcp__claude_ai_Notion__notion-search", "mcp__claude_ai_Notion__notion-ai-search",
+         "mcp__claude_ai_Notion__notion-get-users", "mcp__claude_ai_Notion__notion-get-session-status"]
 
 
 def fetch() -> list[Item]:
