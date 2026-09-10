@@ -2,6 +2,7 @@
 
 Needs a Slack user token with channels:history + channels:read (groups:* if private).
 """
+import re
 import time
 
 import requests
@@ -25,6 +26,13 @@ def _call(method: str, **params) -> dict:
     return body
 
 
+def _clean(text: str) -> str:
+    """Slack markup to plain text: <@U1>/<!subteam^S1|@grp> -> @grp, <url|label> -> label."""
+    text = re.sub(r"<[@!][^>|]*(?:\|([^>]*))?>", lambda m: m.group(1) or "@someone", text)
+    text = re.sub(r"<([^>|]*)(?:\|([^>]*))?>", lambda m: m.group(2) or m.group(1), text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def fetch() -> list[Item]:
     global _team_url
     if not _team_url:
@@ -40,7 +48,7 @@ def fetch() -> list[Item]:
         for m in body["messages"]:
             if m.get("subtype") in ("channel_join", "channel_leave", "bot_add"):
                 continue
-            text = (m.get("text") or "").replace("\n", " ").strip()
+            text = _clean(m.get("text") or "")
             author = (m.get("user_profile") or {}).get("real_name") or m.get("username") or m.get("user", "?")
             items.append(Item(
                 external_id=m["ts"],
