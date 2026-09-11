@@ -8,6 +8,7 @@ def main() -> None:
     sub.add_parser("serve", help="run the dashboard and background syncs")
     s = sub.add_parser("sync", help="sync one source now")
     s.add_argument("source")
+    sub.add_parser("calendars", help="list Google calendars for gcal_calendars")
     sub.add_parser("backup", help="back up the sqlite db to the NAS")
     args = p.parse_args()
 
@@ -18,6 +19,9 @@ def main() -> None:
         from scc.sync import sync_source
         n = sync_source(args.source)
         print(f"{args.source}: {n} items")
+    elif args.cmd == "calendars":
+        from scc.sources.gcal import calendars
+        print("\n".join(calendars()))
     elif args.cmd == "backup":
         from scc.backup import backup
         print(backup())

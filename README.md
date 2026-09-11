@@ -11,7 +11,19 @@ cp config.example.toml config.toml   # edit channel ID, Notion DB URL, NAS targe
 cp .env.example .env                 # add tokens (Sentry vars may already be in your shell)
 uv run scc serve                     # http://127.0.0.1:8765
 uv run scc sync <source>             # one source in the foreground, prints the count
+uv run scc calendars                 # list Google calendars, to fill in gcal_calendars
 uv run scc backup                    # sqlite backup to data/, scp to NAS if configured
+```
+
+## Restarting after a code change
+
+`serve` loads the code once, so edits (and `config.toml` changes) need a restart. Stop it and
+start it as two separate commands — `pkill -f "[s]cc serve"` also matches a shell whose own
+command line contains `scc serve`, so a one-liner kills itself before it can start anything:
+
+```sh
+pkill -f "[s]cc serve"
+uv run scc serve
 ```
 
 State is `data/scc.db` (gitignored). Background syncs run on each source's own interval;
@@ -32,6 +44,21 @@ a section shows FAILED with the reason when a credential is missing, and everyth
 
 `new` → `watching` / `delegated` / `ticketed` → `done`. Done items and snoozed items are hidden.
 Items the source stops returning age out of view after each source's `MAX_AGE_HOURS`.
+
+## Tests
+
+```sh
+uv run python -m pytest -q          # whole suite, <1s
+uv run python -m pytest tests/test_gcal.py -q   # one file
+```
+
+`pytest` comes from the `dev` dependency group, which `uv run` installs automatically. No
+fixtures or conftest: `tests/test_db.py` points `SCC_DATA_DIR` at a temp dir before importing
+`scc.db`, so it never touches `data/scc.db`, and the rest exercise pure functions. Nothing hits
+the network, so no credentials are needed.
+
+One self-check per non-trivial module, not per function. When you add a source, add a test only
+for logic worth breaking (filtering, parsing) — not for `fetch()` calling an API.
 
 ## Adding a source
 

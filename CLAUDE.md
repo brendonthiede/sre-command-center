@@ -7,7 +7,7 @@ one generic `items` table, no base classes, one self-check per non-trivial modul
 ## Run and validate
 
 ```sh
-uv run python -m pytest -q          # 2 self-checks (db upsert semantics, quiet hours)
+uv run python -m pytest -q          # 4 self-checks (db upsert, quiet hours, gcal filter x2)
 uv run scc sync <source>            # foreground sync, prints "<source>: N items"
 uv run scc serve                    # http://127.0.0.1:8765 ; logs "synced X: N items" per pass
 uv run scc backup                   # sqlite backup + scp -O to the Synology

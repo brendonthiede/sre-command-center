@@ -7,5 +7,6 @@ github_label = "ops"
 github_repos = ["august-frontend", "august-backend"]
 slack_support_channel = "C0123456789"   # channel ID, not name
 notion_database_url = "https://www.notion.so/..."
+gcal_calendars = []   # calendar names or ids (substring, case-insensitive); empty = every calendar selected in Google
 notion_filter = "rows whose Status is not Done"   # plain English, Claude applies it
 nas_target = ""   # scp destination like "user@nas:/volume1/backups/scc/"; empty skips the copy

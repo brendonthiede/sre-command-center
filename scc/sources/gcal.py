@@ -10,7 +10,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from scc.config import ROOT
+from scc.config import CFG, ROOT
 from scc.db import Item
 
 NAME = "gcal"
@@ -30,13 +30,33 @@ def _creds() -> Credentials:
     return creds
 
 
+def _wanted(cal: dict) -> bool:
+    """Keep the calendars named in `gcal_calendars`, else whatever is selected in the Google UI.
+
+    Names match case-insensitively as a substring of the calendar name or id, so "On-Call"
+    or a full address both work; `scc calendars` lists what is available.
+    """
+    names = CFG.get("gcal_calendars") or []
+    if not names:
+        return cal.get("selected", True)
+    hay = f"{cal.get('summaryOverride', '')} {cal.get('summary', '')} {cal['id']}".lower()
+    return any(n.lower() in hay for n in names)
+
+
+def calendars() -> list[str]:
+    """`id  name` for every calendar on the account, to fill in `gcal_calendars`."""
+    svc = build("calendar", "v3", credentials=_creds(), cache_discovery=False)
+    return [f"{c['id']}  {c.get('summaryOverride') or c.get('summary', '')}"
+            for c in svc.calendarList().list().execute().get("items", [])]
+
+
 def fetch() -> list[Item]:
     svc = build("calendar", "v3", credentials=_creds(), cache_discovery=False)
     now = datetime.now(timezone.utc)
     day_start = now.astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
     items: list[Item] = []
     for cal in svc.calendarList().list().execute().get("items", []):
-        if not cal.get("selected", True):
+        if not _wanted(cal):
             continue
         events = svc.events().list(calendarId=cal["id"], timeMin=day_start.isoformat(),
                                    timeMax=(now + timedelta(hours=48)).isoformat(),

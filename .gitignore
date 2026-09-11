@@ -2,6 +2,7 @@ data/
 .env
 token.json
 credentials.json
+config.toml
 .venv/
 __pycache__/
 *.pyc
