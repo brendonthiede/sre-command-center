@@ -1,3 +1,5 @@
+<img src="logo.png" alt="SRE Command Center" width="160" align="right">
+
 # SRE Command Center
 
 Local dashboard for the feeds I check every day: calendar, Sentry errors, the Slack support
