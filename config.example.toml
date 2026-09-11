@@ -1,10 +1,11 @@
 # Non-secret settings. Copy to config.toml (committed values here are examples).
 port = 8765
 quiet_hours = [19, 7]   # no background syncs or backups from 19:00 to 07:00 local; omit to disable
-sentry_query = "is:unresolved environment:production level:[error,fatal] project:[august-health,august-health-backend]"
-github_org = "augusthealth"
+sentry_query = "is:unresolved environment:production level:[error,fatal] project:[project1,project2]"
+github_org = "orgname"
 github_label = "ops"
-github_repos = ["august-frontend", "august-backend"]
+github_review_team = "orgname/ops"
+github_repos = ["repo1", "repo2"]
 slack_support_channel = "C0123456789"   # channel ID, not name
 notion_database_url = "https://www.notion.so/..."
 gcal_calendars = []   # calendar names or ids (substring, case-insensitive); empty = every calendar selected in Google
