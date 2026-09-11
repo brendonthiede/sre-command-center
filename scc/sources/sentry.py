@@ -29,7 +29,7 @@ def fetch() -> list[Item]:
             items.append(Item(
                 external_id=iss["id"],
                 title=f"{iss['shortId']} {iss['title']}"[:200],
-                url=iss["permalink"],
+                url=f"{iss['permalink']}?query=level%3A%5Berror%2Cfatal%5D",
                 summary=iss.get("culprit") or "",
                 data={"count": int(iss.get("count", 0)), "users": iss.get("userCount", 0),
                       "level": iss.get("level"), "substatus": iss.get("substatus"),
