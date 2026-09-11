@@ -3,25 +3,39 @@
 <title>SRE Command Center</title>
 <link rel="icon" href="/static/favicon.ico">
 <style>
-  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 12px 16px; background: #f6f7f9; color: #1c1e21; max-width: 1200px; }
+  :root { color-scheme: light; --bg:#f6f7f9; --fg:#1c1e21; --card:#fff; --line:#dde; --muted:#667;
+    --link:#1a4fbf; --note:#445; --dim:#889; --fail:#b00;
+    --b:#e8ebf0; --b-new:#ffe6a8; --b-watching:#cfe8ff; --b-delegated:#e6d5ff; --b-ticketed:#d2f5d8; }
+  :root[data-theme=dark] { color-scheme: dark; --bg:#16181c; --fg:#e6e8ea; --card:#1e2126; --line:#333a44; --muted:#98a0ad;
+    --link:#7aa7ff; --note:#b8c0cc; --dim:#7a828e; --fail:#ff7b72;
+    --b:#2b3038; --b-new:#6b5200; --b-watching:#14406b; --b-delegated:#3f2c66; --b-ticketed:#1d5128; }
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 12px 16px; background: var(--bg); color: var(--fg); max-width: 1200px; }
   summary { font-size: 16px; font-weight: 600; margin: 20px 0 6px; display: flex; gap: 10px; align-items: baseline; cursor: pointer; }
-  summary::before { content: '▸'; color: #667; }
-  details[open] > summary::before { content: '▾'; }
-  summary small { font-weight: normal; color: #667; }
+  summary::before { content: '\25b8'; color: var(--muted); }
+  details[open] > summary::before { content: '\25be'; }
+  summary small { font-weight: normal; color: var(--muted); }
   summary form { display: inline; }
-  .item { background: #fff; border: 1px solid #dde; border-radius: 6px; margin: 4px 0; padding: 6px 10px; }
+  .item { background: var(--card); border: 1px solid var(--line); border-radius: 6px; margin: 4px 0; padding: 6px 10px; }
   .row { display: flex; gap: 10px; align-items: baseline; cursor: pointer; }
-  .row a { color: #1a4fbf; text-decoration: none; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .meta { color: #667; font-size: 12px; white-space: nowrap; }
-  .badge { font-size: 11px; padding: 1px 6px; border-radius: 10px; background: #e8ebf0; }
-  .badge.new { background: #ffe6a8; } .badge.watching { background: #cfe8ff; } .badge.delegated { background: #e6d5ff; } .badge.ticketed { background: #d2f5d8; }
-  .note { color: #445; font-size: 12px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 30%; }
-  .edit { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #dde; }
+  .row a { color: var(--link); text-decoration: none; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .badge { font-size: 11px; padding: 1px 6px; border-radius: 10px; background: var(--b); }
+  .badge.new { background: var(--b-new); } .badge.watching { background: var(--b-watching); } .badge.delegated { background: var(--b-delegated); } .badge.ticketed { background: var(--b-ticketed); }
+  .note { color: var(--note); font-size: 12px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 30%; }
+  .edit { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); }
   .item.open .edit { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
   .edit textarea { flex: 1; min-width: 240px; height: 48px; }
-  .empty { color: #889; padding: 6px 10px; }
-  .fail { color: #b00; }
+  .empty { color: var(--dim); padding: 6px 10px; }
+  .fail { color: var(--fail); }
+  #theme { position: fixed; top: 10px; right: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 6px; cursor: pointer; padding: 3px 7px; }
 </style>
+<script>
+  // Runs before the body paints, so there is no light flash on a dark-mode reload.
+  document.documentElement.dataset.theme = localStorage.getItem('theme')
+    || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+</script>
+
+<button id="theme" onclick="localStorage.setItem('theme', document.documentElement.dataset.theme = document.documentElement.dataset.theme == 'dark' ? 'light' : 'dark')">◐</button>
 
 {% for sec in sections %}
 <details id="{{ sec.name }}" open>
